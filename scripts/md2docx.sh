@@ -5,7 +5,7 @@
 #   md2docx article.md
 #   md2docx article.md out.docx -r my-style.docx
 #   md2docx article.md -u
-# Зависимости: pandoc, rclone (для -u), xclip или wl-copy
+# Зависимости: pandoc, python3+lxml (для пост-обработки таблиц), rclone (для -u), xclip или wl-copy
 # Категория: content
 
 set -euo pipefail
@@ -65,6 +65,13 @@ pandoc "$INPUT" \
   --to=docx \
   --reference-doc="$REFERENCE" \
   --output="$OUTPUT"
+
+# Пост-обработка таблиц: ширина 100%, явная стилизация header'а
+# (надёжнее, чем полагаться на наследование из tblStylePr).
+POSTPROCESS="$SCRIPT_DIR/reference/postprocess.py"
+if [ -x "$POSTPROCESS" ] && command -v python3 &>/dev/null; then
+  python3 "$POSTPROCESS" "$OUTPUT" >/dev/null
+fi
 
 echo "Сохранено: $OUTPUT"
 
