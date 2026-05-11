@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 # Описание: Загружает файлы на Google Drive через rclone, получает публичную ссылку и кладёт её в буфер обмена
 # Использование: gdup [-f папка] <файл> [<файл>...]
-# Зависимости: rclone, xclip или wl-copy
+# Зависимости: rclone, pbcopy (macOS) или wl-copy/xclip (Linux)
 # Категория: content
 
 set -uo pipefail
+
+# shellcheck source=lib-os.sh
+source "$(dirname "$(readlink -f "$0")")/lib-os.sh"
 
 REMOTE="gdrive"
 FOLDER="Uploads"
@@ -53,19 +56,16 @@ for FILE in "$@"; do
 done
 
 if [[ ${#LINKS[@]} -gt 0 ]]; then
-    printf '%s\n' "${LINKS[@]}" | wl-copy --trim-newline
-    if command -v notify-send >/dev/null; then
-        if [[ ${#LINKS[@]} -eq 1 ]]; then
-            notify-send "Загружено в Google Drive" "${LINKS[0]}"
-        else
-            notify-send "Загружено в Google Drive" "Файлов: ${#LINKS[@]} (ссылки в буфере)"
-        fi
+    printf '%s\n' "${LINKS[@]}" | _clip || true
+    if [[ ${#LINKS[@]} -eq 1 ]]; then
+        _notify "Загружено в Google Drive" "${LINKS[0]}"
+    else
+        _notify "Загружено в Google Drive" "Файлов: ${#LINKS[@]} (ссылки в буфере)"
     fi
 fi
 
 if [[ ${#FAILED[@]} -gt 0 ]]; then
-    command -v notify-send >/dev/null && \
-        notify-send -u critical "Не загружено" "Файлов: ${#FAILED[@]} (см. $LOG)"
+    _notify "Не загружено" "Файлов: ${#FAILED[@]} (см. $LOG)"
     exit 1
 fi
 

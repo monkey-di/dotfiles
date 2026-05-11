@@ -22,6 +22,25 @@ generate() {
   echo "<!-- НЕ РЕДАКТИРОВАТЬ ВРУЧНУЮ. Сгенерировано scripts/gen-readme.sh -->"
   echo
 
+  # Скрипты
+  echo "## Скрипты"
+  echo
+  echo "Доступны через \`PATH\` как обычные команды (\`~/.scripts/\`)."
+  echo
+  echo "| Скрипт | Категория | Описание | Зависимости |"
+  echo "| --- | --- | --- | --- |"
+  while IFS= read -r f; do
+    local name desc cat deps
+    name="$(basename "$f" .sh)"
+    desc="$(header_field "$f" 'Описание')"
+    cat="$(header_field "$f" 'Категория')"
+    deps="$(header_field "$f" 'Зависимости')"
+    desc="${desc//|/\\|}"
+    deps="${deps//|/\\|}"
+    echo "| \`$name\` | $cat | $desc | ${deps:-—} |"
+  done < <(list_script_files)
+  echo
+
   # Алиасы
   echo "## Алиасы"
   echo
@@ -41,7 +60,6 @@ generate() {
       echo "| Алиас | Команда | Описание |"
       echo "| --- | --- | --- |"
       while IFS=$'\t' read -r aname acmd acomment; do
-        # экранируем pipe в командах
         acmd="${acmd//|/\\|}"
         acomment="${acomment//|/\\|}"
         echo "| \`$aname\` | \`$acmd\` | $acomment |"
@@ -49,25 +67,6 @@ generate() {
       echo
     fi
   done < <(list_alias_files)
-
-  # Скрипты
-  echo "## Скрипты"
-  echo
-  echo "Доступны через \`PATH\` как обычные команды (\`~/.scripts/\`)."
-  echo
-  echo "| Скрипт | Категория | Описание | Зависимости |"
-  echo "| --- | --- | --- | --- |"
-  while IFS= read -r f; do
-    local name desc cat deps
-    name="$(basename "$f" .sh)"
-    desc="$(header_field "$f" 'Описание')"
-    cat="$(header_field "$f" 'Категория')"
-    deps="$(header_field "$f" 'Зависимости')"
-    desc="${desc//|/\\|}"
-    deps="${deps//|/\\|}"
-    echo "| \`$name\` | $cat | $desc | ${deps:-—} |"
-  done < <(list_script_files)
-  echo
 
   echo "$END_MARK"
 }

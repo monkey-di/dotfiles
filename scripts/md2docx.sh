@@ -5,12 +5,14 @@
 #   md2docx article.md
 #   md2docx article.md out.docx -r my-style.docx
 #   md2docx article.md -u
-# Зависимости: pandoc, python3+lxml (для пост-обработки таблиц), rclone (для -u), xclip или wl-copy
+# Зависимости: pandoc, python3+lxml (для пост-обработки таблиц), rclone (для -u), pbcopy (macOS) или wl-copy/xclip (Linux)
 # Категория: content
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+# shellcheck source=lib-os.sh
+source "$SCRIPT_DIR/lib-os.sh"
 REFERENCE="${PANDOC_REFERENCE_DOC:-$SCRIPT_DIR/reference/pandoc-reference.docx}"
 REMOTE_DIR="${MD2DOCX_REMOTE_DIR:-gdrive:Documents/}"
 INPUT=""
@@ -80,13 +82,13 @@ if [ "$UPLOAD" -eq 1 ]; then
   if rclone copy "$OUTPUT" "$REMOTE_DIR" --quiet 2>/tmp/md2docx-upload.log; then
     URL=$(rclone link "${REMOTE_DIR%/}/$BASENAME" 2>>/tmp/md2docx-upload.log || true)
     if [[ "$URL" =~ ^https?:// ]]; then
-      printf '%s' "$URL" | wl-copy 2>/dev/null || true
-      command -v notify-send >/dev/null && notify-send "docx загружен в Google Drive" "$URL"
+      printf '%s' "$URL" | _clip || true
+      _notify "docx загружен в Google Drive" "$URL"
       echo "Ссылка: $URL"
       exit 0
     fi
   fi
-  command -v notify-send >/dev/null && notify-send -u critical "Загрузка не удалась" "$OUTPUT (см. /tmp/md2docx-upload.log)"
+  _notify "Загрузка не удалась" "$OUTPUT (см. /tmp/md2docx-upload.log)"
   echo "Загрузка не удалась, см. /tmp/md2docx-upload.log" >&2
   exit 1
 fi

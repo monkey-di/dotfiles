@@ -78,7 +78,8 @@ gr() {
   echo "3) Выбрать из последних коммитов"
   echo "0) Отмена"
 
-  read -pr "Ваш выбор: " choice
+  printf 'Ваш выбор: '
+  read -r choice
 
   case $choice in
   1)
@@ -96,7 +97,8 @@ gr() {
     echo "Последние 5 коммитов:"
     git --git-dir="$GIT2_DIR" --work-tree=. log --oneline -5
 
-    read -pr "Введите хэш коммита для отката (или Enter для отмены): " commit_hash
+    printf 'Введите хэш коммита для отката (или Enter для отмены): '
+    read -r commit_hash
     if [ -n "$commit_hash" ]; then
       git --git-dir="$GIT2_DIR" --work-tree=. reset --hard "$commit_hash"
       echo "✓ Откат к коммиту $commit_hash выполнен"

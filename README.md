@@ -35,6 +35,27 @@ git clone <repo-url> && cd dotfiles
 <!-- AUTO:BEGIN -->
 <!-- НЕ РЕДАКТИРОВАТЬ ВРУЧНУЮ. Сгенерировано scripts/gen-readme.sh -->
 
+## Скрипты
+
+Доступны через `PATH` как обычные команды (`~/.scripts/`).
+
+| Скрипт | Категория | Описание | Зависимости |
+| --- | --- | --- | --- |
+| `cheat` | system | Терминальная справка по скриптам и алиасам dotfiles на лету (без README) | awk |
+| `extract` | files | Универсальная распаковка архивов по расширению (tar.*, zip, rar, 7z и др.) | tar, gzip, bzip2, unzip, unrar, 7z, xz (по необходимости) |
+| `gdup` | content | Загружает файлы на Google Drive через rclone, получает публичную ссылку и кладёт её в буфер обмена | rclone, pbcopy (macOS) или wl-copy/xclip (Linux) |
+| `gfont` | system | Скачивает шрифт из репозитория google/fonts и устанавливает его локально | curl, jq |
+| `gif-from-video` | media | Конвертация видео в качественный gif через ffmpeg с двухпроходной генерацией палитры | ffmpeg |
+| `image-converter` | media | Конвертация PNG/JPG ↔ WebP с рекурсивной обработкой каталогов и dry-run режимом | imagemagick (convert) или cwebp/dwebp |
+| `install-modern-tools` | system | Установка современных замен классических утилит (bat, eza, fd, ripgrep, btop, dust, duf) для алиасов из modern.sh | paru/pacman (Arch), apt (Debian/Ubuntu) или brew (macOS) |
+| `md2docx` | content | Конвертация markdown → docx со стилизацией по референсу и опциональной выгрузкой в Google Drive | pandoc, python3+lxml (для пост-обработки таблиц), rclone (для -u), pbcopy (macOS) или wl-copy/xclip (Linux) |
+| `screenshot-ocr` | media | Снимок выделенной области экрана → OCR → текст в буфер обмена | tesseract (+ tesseract-data-rus/eng); grim+slurp (Wayland), maim (X11) или screencapture (macOS); pbcopy/wl-copy/xclip |
+| `ssh-fzf` | network | Интерактивный выбор хоста из ~/.ssh/config через fzf (с превью блока конфига) и подключение по ssh | fzf, ssh |
+| `vpnns` | network | Запуск приложений через WireGuard в отдельном сетевом namespace (изолирует VPN-трафик от остальной системы) | wireguard-tools, iproute2, sudo |
+| `weather` | info | Погода через wttr.in с автоопределением локации по публичному IP | curl |
+| `web-to-markdown` | content | Сохранение веб-страницы как markdown через trafilatura (выделяет основную статью без шапок/футеров) | trafilatura, curl |
+| `yt` | content | Извлечение транскрипта (субтитров) с YouTube-видео в текстовый файл | yt-dlp, jq |
+
 ## Алиасы
 
 Все `.sh`-файлы из `~/.aliases/` подгружаются автоматически.
@@ -65,7 +86,7 @@ git clone <repo-url> && cd dotfiles
 | `dps` | `docker ps` | запущенные контейнеры |
 | `dpsa` | `docker ps -a` | все контейнеры (включая остановленные) |
 | `di` | `docker images` | список образов |
-| `dex` | `docker exec -it` | зайти в контейнер: dex <id\|name> bash |
+| `dex` | `docker exec -it` | зайти в контейнер: dex <id|name> bash |
 | `dlog` | `docker logs -f` | следить за логами контейнера |
 | `dstop` | `docker stop` | остановить контейнер |
 | `drm` | `docker rm` | удалить контейнер |
@@ -183,10 +204,14 @@ git clone <repo-url> && cd dotfiles
 | `bd` | `bun dev` |  |
 | `bb` | `bun build` |  |
 
-### `pkg.sh` — Универсальные алиасы управления пакетами для Arch (paru/pacman) и Ubuntu/Debian (apt)
+### `pkg.sh` — Универсальные алиасы управления пакетами для Arch (paru/pacman), Debian/Ubuntu (apt) и macOS (brew)
 
 | Алиас | Команда | Описание |
 | --- | --- | --- |
+| `install` | `brew install` |  |
+| `remove` | `brew uninstall` |  |
+| `search` | `brew search` |  |
+| `update` | `brew update && brew upgrade` |  |
 | `install` | `$_pkg -S --noconfirm` |  |
 | `remove` | `$_pkg -Rns` |  |
 | `search` | `$_pkg -Ss` |  |
@@ -200,39 +225,21 @@ git clone <repo-url> && cd dotfiles
 
 | Алиас | Команда | Описание |
 | --- | --- | --- |
+| `ports` | `lsof -iTCP -sTCP:LISTEN -n -P` | кто слушает TCP-порты на macOS |
+| `localip` | `ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1` | локальный IP первого активного интерфейса |
+| `mem` | `vm_stat` | использование памяти на macOS (страницами) |
 | `ports` | `ss -tulpn` | кто слушает порты (TCP/UDP, с PID процесса) |
+| `localip` | `hostname -I | awk '{print $1}'` | локальный IP в сети |
+| `mem` | `free -h` | использование памяти в человекочитаемом виде |
 | `myip` | `curl -s ifconfig.me` | внешний IP машины |
-| `localip` | `hostname -I \| awk '{print \$1}'` | локальный IP в сети |
-| `psg` | `ps aux \| grep -v grep \| grep` | поиск процесса по имени: psg nginx |
+| `psg` | `ps aux | grep -v grep | grep` | поиск процесса по имени: psg nginx |
 | `killz` | `kill -9` | принудительно прибить процесс по PID |
-| `path` | `echo -e ${PATH//:/\\n}` | вывести PATH построчно (читабельно) |
-| `reload` | `source ~/.bashrc` | перечитать bashrc после правок |
+| `path` | `echo -e ${PATH//:/\n}` | вывести PATH построчно (читабельно) |
+| `reload` | `source ~/.bashrc 2>/dev/null || source ~/.zshrc` | перечитать конфиг текущего shell |
 | `h` | `history` | история команд |
 | `now` | `date +"%Y-%m-%d %H:%M:%S"` | текущая дата/время |
 | `week` | `date +%V` | номер текущей недели в году |
-| `mem` | `free -h` | использование памяти в человекочитаемом виде |
 | `diskspace` | `df -h` | свободное место на дисках |
-| `biggest` | `du -h --max-depth=1 \| sort -hr \| head -20` | самые жирные подпапки в текущей директории |
-
-## Скрипты
-
-Доступны через `PATH` как обычные команды (`~/.scripts/`).
-
-| Скрипт | Категория | Описание | Зависимости |
-| --- | --- | --- | --- |
-| `cheat` | system | Терминальная справка по алиасам и скриптам dotfiles на лету (без README) | awk |
-| `extract` | files | Универсальная распаковка архивов по расширению (tar.*, zip, rar, 7z и др.) | tar, gzip, bzip2, unzip, unrar, 7z, xz (по необходимости) |
-| `gdup` | content | Загружает файлы на Google Drive через rclone, получает публичную ссылку и кладёт её в буфер обмена | rclone, xclip или wl-copy |
-| `gfont` | system | Скачивает шрифт из репозитория google/fonts и устанавливает его локально | curl, jq |
-| `gif-from-video` | media | Конвертация видео в качественный gif через ffmpeg с двухпроходной генерацией палитры | ffmpeg |
-| `image-converter` | media | Конвертация PNG/JPG ↔ WebP с рекурсивной обработкой каталогов и dry-run режимом | imagemagick (convert) или cwebp/dwebp |
-| `install-modern-tools` | system | Установка современных замен классических утилит (bat, eza, fd, ripgrep, btop, dust, duf) для алиасов из modern.sh | paru/pacman (Arch) или apt (Debian/Ubuntu) |
-| `md2docx` | content | Конвертация markdown → docx со стилизацией по референсу и опциональной выгрузкой в Google Drive | pandoc, python3+lxml (для пост-обработки таблиц), rclone (для -u), xclip или wl-copy |
-| `screenshot-ocr` | media | Снимок выделенной области экрана → OCR → текст в буфер обмена | tesseract (+ tesseract-data-rus/eng), grim+slurp (Wayland) или maim (X11), wl-copy или xclip |
-| `ssh-fzf` | network | Интерактивный выбор хоста из ~/.ssh/config через fzf (с превью блока конфига) и подключение по ssh | fzf, ssh |
-| `vpnns` | network | Запуск приложений через WireGuard в отдельном сетевом namespace (изолирует VPN-трафик от остальной системы) | wireguard-tools, iproute2, sudo |
-| `weather` | info | Погода через wttr.in с автоопределением локации по публичному IP | curl |
-| `web-to-markdown` | content | Сохранение веб-страницы как markdown через trafilatura (выделяет основную статью без шапок/футеров) | trafilatura, curl |
-| `yt` | content | Извлечение транскрипта (субтитров) с YouTube-видео в текстовый файл | yt-dlp, jq |
+| `biggest` | `du -h -d 1 2>/dev/null | sort -hr | head -20` | самые жирные подпапки в текущей директории (-d 1 работает и на BSD/macOS) |
 
 <!-- AUTO:END -->

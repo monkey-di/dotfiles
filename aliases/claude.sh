@@ -4,5 +4,10 @@
 
 alias cc='claude'                                                                                                              # запустить claude
 alias ccd='claude --dangerously-skip-permissions'                                                                              # YOLO: claude без подтверждений на действия
-alias vccd='vpnns run claude --dangerously-skip-permissions'                                                                   # YOLO через VPN namespace
-alias pccd='https_proxy=http://10.200.0.1:1080 http_proxy=http://10.200.0.1:1080 claude --dangerously-skip-permissions'        # YOLO через прокси (для терминала в Obsidian)
+
+# VPN-варианты — только если vpnns доступен (Linux + настроенный namespace).
+# На macOS и без vpnns эти алиасы просто не создаются.
+if command -v vpnns &>/dev/null; then
+  alias vccd='vpnns run claude --dangerously-skip-permissions'                                                                 # YOLO через VPN namespace
+  alias pccd='https_proxy=http://10.200.0.1:1080 http_proxy=http://10.200.0.1:1080 claude --dangerously-skip-permissions'      # YOLO через прокси (для терминала в Obsidian)
+fi

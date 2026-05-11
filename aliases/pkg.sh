@@ -1,8 +1,13 @@
 #!/bin/bash
-# Описание: Универсальные алиасы управления пакетами для Arch (paru/pacman) и Ubuntu/Debian (apt)
+# Описание: Универсальные алиасы управления пакетами для Arch (paru/pacman), Debian/Ubuntu (apt) и macOS (brew)
 # Категория: pkg
 
-if [ -f /etc/os-release ]; then
+if [ "${DOTFILES_OS:-}" = "mac" ]; then
+  alias install='brew install'
+  alias remove='brew uninstall'
+  alias search='brew search'
+  alias update='brew update && brew upgrade'
+elif [ -f /etc/os-release ]; then
   . /etc/os-release
   case "$ID" in
     arch|endeavouros|manjaro)

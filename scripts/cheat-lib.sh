@@ -71,10 +71,10 @@ list_alias_files() {
   find "$ALIASES_DIR" -maxdepth 1 -name '*.sh' -type f | sort
 }
 
-# Список файлов скриптов.
+# Список файлов скриптов (исключаем библиотеки и генератор README).
 list_script_files() {
   find "$SCRIPTS_DIR" -maxdepth 1 -name '*.sh' -type f \
-    ! -name 'cheat-lib.sh' ! -name 'gen-readme.sh' | sort
+    ! -name 'cheat-lib.sh' ! -name 'lib-os.sh' ! -name 'gen-readme.sh' | sort
 }
 
 # Перебор пар «алиас — комментарий» из файла.

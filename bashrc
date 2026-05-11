@@ -1,29 +1,21 @@
-# ~/.bashrc: executed by bash(1) for non-login shells.
-# see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
-# for examples
+# ~/.bashrc — bash startup для интерактивных сессий
 
+# 1) Общая часть (PATH, OS-детекция, ssh-agent) — работает и в zsh
+for f in ~/.shell/*; do
+  [[ -f $f ]] && source "$f"
+done
+
+# 2) bash-специфика (HISTCONTROL, bind, shopt, prompt)
 for f in ~/.bash/*; do
   [[ -f $f ]] && source "$f"
 done
 
-if [ -f ~/.bash_aliases ]; then
-  . ~/.bash_aliases
-fi
-
-# Load all alias files from .aliases directory
+# 3) Алиасы
 if [ -d ~/.aliases ]; then
-  for file in ~/.aliases/*.sh; do
-    if [ -f "$file" ]; then
-      . "$file"
-    fi
+  for f in ~/.aliases/*.sh; do
+    [ -f "$f" ] && source "$f"
   done
 fi
 
-# Start ssh-agent and add SSH key automatically
-if [ -z "$SSH_AUTH_SOCK" ]; then
-  eval "$(ssh-agent -s)" >/dev/null
-  ssh-add ~/.ssh/id_ed25519 2>/dev/null
-fi
-
-# Local overrides (secrets, machine-specific settings)
-[ -f ~/.bashrc.local ] && . ~/.bashrc.local
+# 4) Локальные оверрайды (секреты, машино-специфичное)
+[ -f ~/.bashrc.local ] && source ~/.bashrc.local
